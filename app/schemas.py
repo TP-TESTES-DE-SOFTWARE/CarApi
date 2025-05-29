@@ -1,5 +1,6 @@
+from datetime import date
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 class CarBase(BaseModel):
     make: str
@@ -7,13 +8,14 @@ class CarBase(BaseModel):
     year: int
     color: str
     price: float
+    owner_id: Optional[int] = None
 
 class CarCreate(CarBase):
     pass
 
 class Car(CarBase):
     id: int
-
+    
     class Config:
         from_attributes = True
 
@@ -23,3 +25,35 @@ class CarUpdate(BaseModel):
     year: Optional[int] = None
     color: Optional[str] = None
     price: Optional[float] = None
+    owner_id: Optional[int] = None
+
+class PersonBase(BaseModel):
+    name: str
+    cpf: str
+    birth_date: date
+
+class PersonCreate(PersonBase):
+    pass
+
+class Person(PersonBase):
+    id: int
+    
+    class Config:
+        from_attributes = True
+
+class PersonUpdate(BaseModel):
+    name: Optional[str] = None
+    cpf: Optional[str] = None
+    birth_date: Optional[date] = None
+
+class PersonWithCars(Person):
+    cars: List[Car] = []
+    
+    class Config:
+        from_attributes = True
+
+class CarWithOwner(Car):
+    owner: Optional[Person] = None
+    
+    class Config:
+        from_attributes = True
