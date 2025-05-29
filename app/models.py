@@ -11,6 +11,9 @@ class Car(Base):
     year = Column(Integer)
     color = Column(String)
     price = Column(Float)
+    owner_id = Column(Integer, ForeignKey("people.id"))
+    
+    owner = relationship("Person", back_populates="cars")
 
 class Person(Base):
     __tablename__ = "people"
