@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy.orm import Session
 from app import models, schemas
 
@@ -79,3 +80,47 @@ def get_person_with_cars(db: Session, person_id: int):
 
 def get_car_with_owner(db: Session, car_id: int):
     return db.query(models.Car).filter(models.Car.id == car_id).first()
+
+def associate_car_to_person(db: Session, person_id: int, car_id: int):
+    """Associa um carro existente a uma pessoa"""
+    db_person = db.query(models.Person).filter(models.Person.id == person_id).first()
+    db_car = db.query(models.Car).filter(models.Car.id == car_id).first()
+    
+    if not db_person or not db_car:
+        return False
+    
+    db_car.owner_id = person_id
+    db.commit()
+    db.refresh(db_car)
+    return True
+
+def disassociate_car_from_person(db: Session, car_id: int):
+    """Remove a associação de um carro com seu proprietário"""
+    db_car = db.query(models.Car).filter(models.Car.id == car_id).first()
+    if not db_car:
+        return False
+    
+    db_car.owner_id = None
+    db.commit()
+    db.refresh(db_car)
+    return True
+
+def get_person_cars(db: Session, person_id: int):
+    """Retorna todos os carros de uma pessoa"""
+    return db.query(models.Car).filter(models.Car.owner_id == person_id).all()
+
+def update_car_owner(db: Session, car_id: int, owner_id: Optional[int]):
+    """Atualiza o proprietário de um carro"""
+    db_car = db.query(models.Car).filter(models.Car.id == car_id).first()
+    if not db_car:
+        return None
+    
+    if owner_id is not None:
+        db_person = db.query(models.Person).filter(models.Person.id == owner_id).first()
+        if not db_person:
+            return None
+    
+    db_car.owner_id = owner_id
+    db.commit()
+    db.refresh(db_car)
+    return db_car

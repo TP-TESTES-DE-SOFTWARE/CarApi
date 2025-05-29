@@ -57,3 +57,12 @@ class CarWithOwner(Car):
     
     class Config:
         from_attributes = True
+
+class CarOwnerUpdate(BaseModel):
+    """Schema para atualizar apenas o proprietário do carro"""
+    owner_id: Optional[int] = None
+
+class PersonCarAssociation(BaseModel):
+    """Schema para associar/desassociar carros de pessoas"""
+    car_id: int
+    action: str  # 'add' or 'remove'
