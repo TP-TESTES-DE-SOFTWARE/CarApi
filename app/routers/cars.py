@@ -45,3 +45,24 @@ def delete_car(car_id: int, db: Session = Depends(get_db)):
     if not success:
         raise HTTPException(status_code=404, detail="Car not found")
     return {"message": "Car deleted successfully"}
+
+@router.patch("/{car_id}/owner", response_model=schemas.CarWithOwner)
+def update_car_owner(
+    car_id: int, 
+    owner_update: schemas.CarOwnerUpdate,
+    db: Session = Depends(get_db)
+):
+    """Atualiza o proprietário de um carro"""
+    db_car = repository.update_car_owner(db, car_id=car_id, owner_id=owner_update.owner_id)
+    if db_car is None:
+        raise HTTPException(status_code=404, detail="Car not found or invalid owner")
+    return db_car
+
+@router.get("/owner/{owner_id}", response_model=list[schemas.Car])
+def get_cars_by_owner(owner_id: int, db: Session = Depends(get_db)):
+    """Lista todos os carros de um proprietário"""
+    db_person = repository.get_person(db, person_id=owner_id)
+    if not db_person:
+        raise HTTPException(status_code=404, detail="Owner not found")
+    
+    return repository.get_person_cars(db, person_id=owner_id)

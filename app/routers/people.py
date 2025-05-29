@@ -39,3 +39,31 @@ def delete_person(person_id: int, db: Session = Depends(get_db)):
     if not success:
         raise HTTPException(status_code=404, detail="Person not found")
     return {"message": "Person deleted successfully"}
+
+@router.post("/{person_id}/cars", response_model=schemas.PersonWithCars)
+def manage_person_cars(
+    person_id: int, 
+    association: schemas.PersonCarAssociation,
+    db: Session = Depends(get_db)
+):
+    """Adiciona ou remove um carro da pessoa"""
+    db_person = repository.get_person(db, person_id=person_id)
+    if not db_person:
+        raise HTTPException(status_code=404, detail="Person not found")
+    
+    db_car = repository.get_car(db, car_id=association.car_id)
+    if not db_car:
+        raise HTTPException(status_code=404, detail="Car not found")
+    
+    if association.action == "add":
+        if not repository.associate_car_to_person(db, person_id=person_id, car_id=association.car_id):
+            raise HTTPException(status_code=400, detail="Association failed")
+    elif association.action == "remove":
+        if db_car.owner_id != person_id:
+            raise HTTPException(status_code=400, detail="Car not owned by this person")
+        if not repository.disassociate_car_from_person(db, car_id=association.car_id):
+            raise HTTPException(status_code=400, detail="Disassociation failed")
+    else:
+        raise HTTPException(status_code=400, detail="Invalid action")
+    
+    return repository.get_person_with_cars(db, person_id=person_id)
