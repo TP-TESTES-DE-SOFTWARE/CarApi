@@ -6,7 +6,7 @@ from app.models import Person, Car
 
 def test_database_connection():
     """Testa se a conexão com o banco de dados SQLite em memória está funcionando"""
-    assert str(engine.url) == "sqlite:///:memory:"
+    assert str(engine.url) == "sqlite:///./test.db"
     
     connection = engine.connect()
     assert connection.closed is False
