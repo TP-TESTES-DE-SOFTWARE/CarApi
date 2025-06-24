@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FastAPI Car UI</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; }
+    input, button, select { margin: 0.3rem; }
+    hr { margin: 2rem 0; }
+    .section { margin-bottom: 2rem; }
+  </style>
+</head>
+<body>
+  <h1>🚗 FastAPI Car API Tester</h1>
+
+  <div class="section">
+    <h2>Create Person</h2>
+    <input id="person_name" placeholder="Name" />
+    <input id="person_cpf" placeholder="CPF" />
+    <input id="person_birth" type="date" />
+    <button onclick="createPerson()">Create</button>
+  </div>
+
+  <div class="section">
+    <h2>Create Car</h2>
+    <input id="car_make" placeholder="Make" />
+    <input id="car_model" placeholder="Model" />
+    <input id="car_year" type="number" placeholder="Year" />
+    <input id="car_color" placeholder="Color" />
+    <input id="car_price" type="number" placeholder="Price" step="0.01" />
+    <input id="car_owner_id" type="number" placeholder="Owner ID (optional)" />
+    <button onclick="createCar()">Create</button>
+  </div>
+
+  <div class="section">
+    <h2>Associate Car to Person</h2>
+    <input id="assoc_person_id" type="number" placeholder="Person ID" />
+    <input id="assoc_car_id" type="number" placeholder="Car ID" />
+    <button onclick="associateCar()">Associate</button>
+  </div>
+
+  <div class="section">
+    <h2>Get Person with Cars</h2>
+    <input id="get_person_id" type="number" placeholder="Person ID" />
+    <button onclick="getPerson()">Get</button>
+    <pre id="result"></pre>
+  </div>
+
+  <script>
+    const api = "http://localhost:8000";
+
+    async function createPerson() {
+      const payload = {
+        name: document.getElementById("person_name").value,
+        cpf: document.getElementById("person_cpf").value,
+        birth_date: document.getElementById("person_birth").value,
+      };
+      const res = await fetch(`${api}/people/`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      alert("Response: " + res.status);
+    }
+
+    async function createCar() {
+      const payload = {
+        make: document.getElementById("car_make").value,
+        model: document.getElementById("car_model").value,
+        year: parseInt(document.getElementById("car_year").value),
+        color: document.getElementById("car_color").value,
+        price: parseFloat(document.getElementById("car_price").value),
+        owner_id: document.getElementById("car_owner_id").value || null
+      };
+      const res = await fetch(`${api}/cars/`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      alert("Response: " + res.status);
+    }
+
+    async function associateCar() {
+      const person_id = document.getElementById("assoc_person_id").value;
+      const car_id = document.getElementById("assoc_car_id").value;
+      const payload = { car_id: parseInt(car_id), action: "add" };
+
+      const res = await fetch(`${api}/people/${person_id}/cars`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      alert("Response: " + res.status);
+    }
+
+    async function getPerson() {
+      const person_id = document.getElementById("get_person_id").value;
+      const res = await fetch(`${api}/people/${person_id}`);
+      const data = await res.json();
+      document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>

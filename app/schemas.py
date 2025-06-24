@@ -18,6 +18,7 @@ class Car(CarBase):
     
     class Config:
         from_attributes = True
+        orm_mode = True
 
 class CarUpdate(BaseModel):
     make: Optional[str] = None
@@ -40,6 +41,7 @@ class Person(PersonBase):
     
     class Config:
         from_attributes = True
+        orm_mode = True
 
 class PersonUpdate(BaseModel):
     name: Optional[str] = None
@@ -51,12 +53,13 @@ class PersonWithCars(Person):
     
     class Config:
         from_attributes = True
-
+        orm_mode = True
 class CarWithOwner(Car):
     owner: Optional[Person] = None
     
     class Config:
         from_attributes = True
+        orm_mode = True
 
 class CarOwnerUpdate(BaseModel):
     """Schema para atualizar apenas o proprietário do carro"""
